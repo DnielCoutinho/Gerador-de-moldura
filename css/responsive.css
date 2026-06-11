@@ -1,0 +1,532 @@
+/* ============================================
+   FRAME STUDIO - RESPONSIVE CSS
+   Breakpoints e adaptações para todos os dispositivos
+   ============================================ */
+
+/* ============ BREAKPOINTS ============ */
+/* 
+   Mobile: < 640px
+   Tablet: 640px - 1024px
+   Desktop: 1024px - 1536px
+   Ultrawide: > 1536px
+*/
+
+/* ============ EXTRA SMALL DEVICES (< 640px) ============ */
+@media (max-width: 639px) {
+    :root {
+        --font-size-4xl: 1.875rem;
+        --font-size-3xl: 1.5rem;
+        --font-size-2xl: 1.25rem;
+        --spacing-2xl: 1.5rem;
+        --spacing-3xl: 2rem;
+    }
+
+    /* Header */
+    .header__container {
+        padding: var(--spacing-md) var(--spacing-lg);
+    }
+
+    .logo {
+        font-size: var(--font-size-lg);
+    }
+
+    /* App Layout */
+    .app {
+        padding: var(--spacing-lg);
+    }
+
+    .app__container {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-xl);
+    }
+
+    /* Upload Area */
+    .upload-area {
+        min-height: 250px;
+    }
+
+    .upload-area__content {
+        padding: var(--spacing-lg);
+    }
+
+    .upload-area__icon {
+        width: 36px;
+        height: 36px;
+    }
+
+    .upload-area__title {
+        font-size: var(--font-size-lg);
+    }
+
+    /* Gallery */
+    .gallery__grid {
+        grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+        gap: var(--spacing-sm);
+    }
+
+    /* Preview Card */
+    .preview-card__header {
+        flex-wrap: wrap;
+        gap: var(--spacing-md);
+    }
+
+    .preview-card__canvas-wrapper {
+        min-height: 250px;
+        padding: var(--spacing-md);
+    }
+
+    /* Editor Panel */
+    .editor-panel__content {
+        max-height: none;
+        gap: var(--spacing-lg);
+    }
+
+    .presets-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .alignment-buttons {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    /* EXIF Info */
+    .exif-info__grid {
+        grid-template-columns: 1fr;
+    }
+
+    /* Buttons */
+    .btn {
+        padding: var(--spacing-md) var(--spacing-lg);
+        font-size: var(--font-size-sm);
+    }
+
+    /* Forms */
+    .form-group {
+        gap: var(--spacing-sm);
+        margin-bottom: var(--spacing-md);
+    }
+
+    /* Modals */
+    .modal__content {
+        width: 95%;
+        padding: var(--spacing-lg);
+    }
+
+    /* Toast */
+    .toast {
+        bottom: var(--spacing-lg);
+        max-width: 85%;
+        padding: var(--spacing-md) var(--spacing-lg);
+        font-size: var(--font-size-sm);
+    }
+}
+
+/* ============ SMALL DEVICES (640px - 1023px) ============ */
+@media (min-width: 640px) and (max-width: 1023px) {
+    :root {
+        --spacing-2xl: 2rem;
+    }
+
+    /* App Layout */
+    .app {
+        padding: var(--spacing-xl);
+    }
+
+    .app__container {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-2xl);
+    }
+
+    /* Header */
+    .header__container {
+        padding: var(--spacing-md) var(--spacing-lg);
+    }
+
+    /* Upload Area */
+    .upload-area {
+        min-height: 300px;
+    }
+
+    /* Gallery */
+    .gallery__grid {
+        grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+        gap: var(--spacing-md);
+    }
+
+    /* Preview Card */
+    .preview-card__canvas-wrapper {
+        min-height: 300px;
+    }
+
+    /* EXIF Info */
+    .exif-info__grid {
+        grid-template-columns: 1fr;
+    }
+
+    /* Presets */
+    .presets-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    /* Editor Panel */
+    .editor-panel__content {
+        max-height: 500px;
+    }
+
+    /* Sections Stack */
+    .section {
+        gap: var(--spacing-lg);
+    }
+}
+
+/* ============ MEDIUM DEVICES (1024px - 1535px) ============ */
+@media (min-width: 1024px) and (max-width: 1535px) {
+    .app__container {
+        grid-template-columns: 1fr 1fr;
+        gap: var(--spacing-2xl);
+    }
+
+    .editor-panel__content {
+        max-height: calc(100vh - 300px);
+    }
+
+    .preview-card__canvas-wrapper {
+        min-height: 400px;
+    }
+
+    .exif-info__grid {
+        grid-template-columns: 1fr;
+    }
+
+    .presets-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* ============ LARGE DEVICES (1536px+) ============ */
+@media (min-width: 1536px) {
+    .app__container {
+        grid-template-columns: 1fr 1fr;
+        gap: var(--spacing-3xl);
+        max-width: 1800px;
+    }
+
+    .editor-panel__content {
+        max-height: calc(100vh - 350px);
+    }
+
+    .preview-card__canvas-wrapper {
+        min-height: 500px;
+        max-height: 700px;
+    }
+
+    .exif-info__grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .presets-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/* ============ MOBILE LANDSCAPE ============ */
+@media (max-width: 900px) and (orientation: landscape) {
+    .app {
+        padding: var(--spacing-lg);
+    }
+
+    .app__container {
+        gap: var(--spacing-lg);
+    }
+
+    .upload-area {
+        min-height: 200px;
+    }
+
+    .preview-card__canvas-wrapper {
+        min-height: 250px;
+        max-height: 400px;
+    }
+
+    .editor-panel__content {
+        max-height: 350px;
+        gap: var(--spacing-md);
+    }
+
+    .editor-section {
+        gap: var(--spacing-sm);
+    }
+}
+
+/* ============ TOUCH DEVICES ============ */
+@media (hover: none) and (pointer: coarse) {
+    /* Aumentar tamanho dos botões para toque */
+    .btn {
+        min-height: 44px;
+        min-width: 44px;
+    }
+
+    .btn-icon {
+        width: 44px;
+        height: 44px;
+    }
+
+    input[type="range"] {
+        height: 8px;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+        width: 24px;
+        height: 24px;
+    }
+
+    input[type="range"]::-moz-range-thumb {
+        width: 24px;
+        height: 24px;
+    }
+
+    /* Remover hover effects em touch */
+    .btn:hover {
+        transform: none;
+    }
+
+    .card:hover {
+        box-shadow: 0 4px 12px var(--shadow-medium);
+    }
+
+    .hover-lift:hover {
+        transform: none;
+    }
+
+    /* Feedback de toque */
+    button {
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    button:active {
+        opacity: 0.8;
+    }
+
+    /* Melhorar espaçamento em touch */
+    .form-group {
+        margin-bottom: var(--spacing-xl);
+    }
+
+    input,
+    textarea,
+    select {
+        font-size: 16px;
+    }
+}
+
+/* ============ HIGH DPI DEVICES ============ */
+@media (-webkit-min-device-pixel-ratio: 2),
+       (min-resolution: 192dpi) {
+    /* Ajustar bordas e sombras para alta resolução */
+    .card {
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    }
+
+    .btn--primary {
+        box-shadow: 0 2px 8px var(--shadow-medium);
+    }
+
+    .btn--primary:hover {
+        box-shadow: 0 4px 12px var(--shadow-heavy);
+    }
+}
+
+/* ============ PREFERS REDUCED MOTION ============ */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+/* ============ DARK MODE PREFERENCE ============ */
+@media (prefers-color-scheme: dark) {
+    /* Já configurado via CSS custom properties */
+    body {
+        color-scheme: dark;
+    }
+}
+
+@media (prefers-color-scheme: light) {
+    body {
+        color-scheme: light;
+    }
+}
+
+/* ============ HIGH CONTRAST ============ */
+@media (prefers-contrast: more) {
+    :root {
+        --shadow-light: rgba(26, 26, 26, 0.08);
+        --shadow-medium: rgba(26, 26, 26, 0.15);
+        --shadow-heavy: rgba(26, 26, 26, 0.25);
+    }
+
+    .btn--primary {
+        box-shadow: 0 0 0 2px var(--color-white),
+                    0 4px 12px var(--shadow-heavy);
+    }
+}
+
+/* ============ PRINT STYLES ============ */
+@media print {
+    .header,
+    .btn,
+    .editor-panel,
+    .toast,
+    .loading-spinner {
+        display: none;
+    }
+
+    .app {
+        padding: 0;
+    }
+
+    .preview-card__canvas {
+        box-shadow: none;
+        border: 1px solid #000;
+    }
+
+    body {
+        background-color: white;
+        color: black;
+    }
+}
+
+/* ============ SPECIFIC DEVICE FIXES ============ */
+
+/* iPhone */
+@media (max-width: 480px) {
+    input {
+        font-size: 16px;
+    }
+
+    .upload-area {
+        min-height: 200px;
+    }
+
+    .gallery__grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/* iPad */
+@media (min-width: 768px) and (max-width: 1024px) {
+    .app__container {
+        grid-template-columns: 1fr;
+    }
+
+    .editor-panel {
+        margin-top: var(--spacing-xl);
+    }
+
+    .exif-info__grid {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+/* Samsung Galaxy Fold */
+@media (max-width: 280px) {
+    .logo__badge {
+        display: none;
+    }
+
+    .header__nav {
+        gap: var(--spacing-md);
+    }
+
+    h2, h3 {
+        font-size: var(--font-size-lg);
+    }
+}
+
+/* ============ CONTAINER QUERIES (Future-proof) ============ */
+/* Quando suportado, permitirá componentes responsivos */
+@supports (container-type: inline-size) {
+    .card {
+        container-type: inline-size;
+    }
+
+    @container (min-width: 400px) {
+        .card__content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--spacing-lg);
+        }
+    }
+}
+
+/* ============ UTILITIES ============ */
+
+/* Show/Hide por breakpoint */
+@media (max-width: 639px) {
+    .hide-mobile {
+        display: none !important;
+    }
+
+    .show-mobile {
+        display: block !important;
+    }
+}
+
+@media (min-width: 640px) and (max-width: 1023px) {
+    .hide-tablet {
+        display: none !important;
+    }
+
+    .show-tablet {
+        display: block !important;
+    }
+}
+
+@media (min-width: 1024px) {
+    .hide-desktop {
+        display: none !important;
+    }
+
+    .show-desktop {
+        display: block !important;
+    }
+}
+
+/* Fluid Typography */
+@media (min-width: 320px) and (max-width: 1920px) {
+    h1 {
+        font-size: clamp(1.875rem, 5vw, 2.25rem);
+    }
+
+    h2 {
+        font-size: clamp(1.5rem, 4vw, 1.875rem);
+    }
+
+    h3 {
+        font-size: clamp(1.25rem, 3vw, 1.5rem);
+    }
+
+    p {
+        font-size: clamp(0.875rem, 1.5vw, 1rem);
+    }
+}
+
+/* Fluid Spacing */
+@media (min-width: 320px) and (max-width: 1920px) {
+    .app {
+        padding: clamp(1rem, 5vw, 3rem);
+    }
+
+    .app__container {
+        gap: clamp(1.5rem, 5vw, 3rem);
+    }
+
+    .section {
+        gap: clamp(0.75rem, 3vw, 1.5rem);
+    }
+}
