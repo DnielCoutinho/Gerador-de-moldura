@@ -234,7 +234,7 @@ input, select, textarea {
 
 .upload-zone__content {
     text-align: center;
-    pointer-events: none;
+    /* CORREÇÃO: Removido o pointer-events: none que impedia o clique no texto */
 }
 
 .upload-zone__icon {
@@ -976,4 +976,37 @@ input, select, textarea {
     clip: rect(0, 0, 0, 0);
     white-space: nowrap;
     border-width: 0;
+}
+
+/* ============ RESPONSIVE MOBILE ============ */
+@media (max-width: 1024px) {
+    .app-grid {
+        grid-template-columns: 1fr; /* Muda para 1 única coluna no celular */
+        height: auto;
+        overflow-y: auto;
+    }
+    
+    .sidebar {
+        border-right: none;
+        border-bottom: 1px solid var(--border-color);
+        height: auto;
+    }
+    
+    .main-content {
+        min-height: 50vh; /* Garante que a imagem tenha espaço para aparecer */
+    }
+    
+    .control-panel {
+        border-left: none;
+        border-top: 1px solid var(--border-color);
+        height: auto;
+    }
+    
+    .header__container {
+        padding: var(--sp-4);
+    }
+
+    .preview-container {
+        padding: var(--sp-4);
+    }
 }

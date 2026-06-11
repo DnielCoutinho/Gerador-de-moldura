@@ -24,6 +24,7 @@ class FrameStudioProApp {
             const canvas = document.getElementById('previewCanvas');
             if (canvas) {
                 this.previewManager = new PreviewManager(canvas);
+                window.previewManager = this.previewManager; // CORREÇÃO: Export global
             }
 
             // Setup listeners
@@ -44,7 +45,11 @@ class FrameStudioProApp {
         const uploadZone = document.getElementById('uploadZone');
 
         fileInput?.addEventListener('change', (e) => this.handleFiles(e.target.files));
-        uploadBtn?.addEventListener('click', () => fileInput?.click());
+        
+        // CORREÇÃO: Fazer a área inteira de upload ser clicável
+        uploadZone?.addEventListener('click', (e) => {
+            if (e.target !== fileInput) fileInput?.click();
+        });
 
         uploadZone?.addEventListener('dragover', (e) => {
             e.preventDefault();
@@ -225,7 +230,9 @@ let app;
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
         app = new FrameStudioProApp();
+        window.app = app; // CORREÇÃO: Export global
     });
 } else {
     app = new FrameStudioProApp();
+    window.app = app; // CORREÇÃO: Export global
 }

@@ -277,58 +277,65 @@ class ExifReaderPro {
     }
 
     /**
-     * Parse de valor EXIF
+     * Parse de valor EXIF corrigido para ler ponteiros de memória (offsets)
      */
     parseTagValue(data, type, count, valueOffset, littleEndian, tiffStart) {
         try {
+            // Calcular o tamanho total em bytes do valor
+            const bytesPerComponent = { 1: 1, 2: 1, 3: 2, 4: 4, 5: 8, 7: 1, 9: 4, 10: 8 };
+            const totalBytes = (bytesPerComponent[type] || 1) * count;
+            
+            // CORREÇÃO: Se o tamanho for maior que 4 bytes, o valueOffset contém um PONTEIRO para a posição real
+            let realOffset = valueOffset;
+            if (totalBytes > 4) {
+                realOffset = tiffStart + data.getUint32(valueOffset, littleEndian);
+                // Validação de segurança para não ler fora da memória do arquivo
+                if (realOffset + totalBytes > data.byteLength) return null;
+            }
+
             switch (type) {
                 case 1: // BYTE
-                    if (count === 1) return data.getUint8(valueOffset);
+                    if (count === 1) return data.getUint8(realOffset);
                     const bytes = [];
                     for (let i = 0; i < Math.min(count, 4); i++) {
-                        bytes.push(data.getUint8(valueOffset + i));
+                        bytes.push(data.getUint8(realOffset + i));
                     }
                     return bytes.join(', ');
 
                 case 2: // ASCII
                     let result = '';
-                    let offset = valueOffset;
-                    if (count > 4) {
-                        offset = tiffStart + data.getUint32(valueOffset, littleEndian);
-                        if (offset > data.byteLength - count) return '';
-                    }
                     for (let i = 0; i < count; i++) {
-                        const byte = data.getUint8(offset + i);
+                        const byte = data.getUint8(realOffset + i);
                         if (byte === 0) break;
                         result += String.fromCharCode(byte);
                     }
                     return result.trim();
 
                 case 3: // SHORT
-                    if (count === 1) return data.getUint16(valueOffset, littleEndian);
+                    if (count === 1) return data.getUint16(realOffset, littleEndian);
                     const shorts = [];
                     for (let i = 0; i < Math.min(count, 2); i++) {
-                        shorts.push(data.getUint16(valueOffset + i * 2, littleEndian));
+                        shorts.push(data.getUint16(realOffset + i * 2, littleEndian));
                     }
                     return shorts.join(', ');
 
                 case 4: // LONG
-                    if (count === 1) return data.getUint32(valueOffset, littleEndian);
+                    if (count === 1) return data.getUint32(realOffset, littleEndian);
                     const longs = [];
                     for (let i = 0; i < Math.min(count, 1); i++) {
-                        longs.push(data.getUint32(valueOffset + i * 4, littleEndian));
+                        longs.push(data.getUint32(realOffset + i * 4, littleEndian));
                     }
                     return longs.join(', ');
 
                 case 5: // RATIONAL
-                    const numerator = data.getUint32(valueOffset, littleEndian);
-                    const denominator = data.getUint32(valueOffset + 4, littleEndian);
+                    const numerator = data.getUint32(realOffset, littleEndian);
+                    const denominator = data.getUint32(realOffset + 4, littleEndian);
                     if (denominator === 0) return '0';
                     return (numerator / denominator).toFixed(2);
 
                 case 10: // SRATIONAL
-                    const sNumerator = data.getInt32(valueOffset, littleEndian);
-                    const sDenominator = data.getInt32(valueOffset + 4, littleEndian);
+                    const sNumerator = data.getInt32(realOffset, littleEndian);
+                    const sDenominator = data.getInt32(realOffset + 4, littleEndian);
                     if (sDenominator === 0) return '0';
                     return (sNumerator / sDenominator).toFixed(2);
 
@@ -336,6 +343,7 @@ class ExifReaderPro {
                     return null;
             }
         } catch (e) {
+            console.error("Erro ao ler tag EXIF:", e);
             return null;
         }
     }
