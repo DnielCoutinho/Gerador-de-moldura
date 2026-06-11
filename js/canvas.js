@@ -87,9 +87,25 @@ class FrameGenerator {
             // Mesclar configurações
             const config = { ...this.config, ...frameConfig };
 
+            // Processar imagem de acordo com aspect ratio
+            let processedImage = image;
+            let displayWidth = image.width;
+            let displayHeight = image.height;
+
+            if (config.aspectRatio && config.aspectRatio !== 'original') {
+                const { width, height } = this.calculateAspectRatioDimensions(
+                    image.width,
+                    image.height,
+                    config.aspectRatio
+                );
+                displayWidth = width;
+                displayHeight = height;
+                processedImage = await this.cropImageToAspectRatio(image, displayWidth, displayHeight);
+            }
+
             // Criar canvas
-            const width = image.width + (config.frameWidth * 2);
-            const height = image.height + config.frameWidth + config.bottomSpacing;
+            const width = displayWidth + (config.frameWidth * 2);
+            const height = displayHeight + config.frameWidth + config.bottomSpacing;
 
             this.canvas = document.createElement('canvas');
             this.canvas.width = width;
@@ -102,16 +118,16 @@ class FrameGenerator {
 
             // Desenhar imagem
             this.ctx.drawImage(
-                image,
+                processedImage,
                 config.frameWidth,
                 config.frameWidth,
-                image.width,
-                image.height
+                displayWidth,
+                displayHeight
             );
 
             // Desenhar EXIF no espaço inferior
             if (Object.keys(exifData).length > 0) {
-                this.drawEXIFInfo(exifData, config, image);
+                this.drawEXIFInfo(exifData, config, displayWidth, displayHeight);
             }
 
             return this.canvas;
@@ -122,16 +138,88 @@ class FrameGenerator {
     }
 
     /**
+     * Calcula dimensões com base no aspect ratio
+     * @param {number} originalWidth - Largura original
+     * @param {number} originalHeight - Altura original
+     * @param {string} aspectRatio - Proporção (ex: "16:9", "4:3")
+     * @returns {Object} Objeto com width e height
+     * @private
+     */
+    calculateAspectRatioDimensions(originalWidth, originalHeight, aspectRatio) {
+        const [ratioWidth, ratioHeight] = aspectRatio.split(':').map(Number);
+        const targetRatio = ratioWidth / ratioHeight;
+        const currentRatio = originalWidth / originalHeight;
+
+        let newWidth, newHeight;
+
+        if (currentRatio > targetRatio) {
+            // Imagem é mais larga do que o target, reduzir largura
+            newHeight = originalHeight;
+            newWidth = Math.round(originalHeight * targetRatio);
+        } else {
+            // Imagem é mais alta do que o target, reduzir altura
+            newWidth = originalWidth;
+            newHeight = Math.round(originalWidth / targetRatio);
+        }
+
+        return { width: newWidth, height: newHeight };
+    }
+
+    /**
+     * Recorta imagem para o aspecto ratio desejado
+     * @param {HTMLImageElement} image - Imagem original
+     * @param {number} targetWidth - Largura alvo
+     * @param {number} targetHeight - Altura alvo
+     * @returns {Promise<HTMLImageElement>} Imagem recortada
+     * @private
+     */
+    async cropImageToAspectRatio(image, targetWidth, targetHeight) {
+        // Criar canvas para recorte
+        const cropCanvas = document.createElement('canvas');
+        cropCanvas.width = targetWidth;
+        cropCanvas.height = targetHeight;
+        const cropCtx = cropCanvas.getContext('2d');
+
+        // Calcular posição para centralizar
+        const sourceX = (image.width - targetWidth) / 2;
+        const sourceY = (image.height - targetHeight) / 2;
+
+        // Desenhar imagem recortada
+        cropCtx.drawImage(
+            image,
+            Math.max(0, sourceX),
+            Math.max(0, sourceY),
+            targetWidth,
+            targetHeight,
+            0,
+            0,
+            targetWidth,
+            targetHeight
+        );
+
+        // Converter para imagem
+        return new Promise((resolve) => {
+            const img = new Image();
+            img.onload = () => {
+                URL.revokeObjectURL(img.src);
+                resolve(img);
+            };
+            img.src = cropCanvas.toDataURL();
+        });
+    }
+
+    /**
      * Desenha informações EXIF no canvas
      * @param {Object} exifData - Dados EXIF
      * @param {Object} config - Configuração
-     * @param {HTMLImageElement} image - Imagem original
+     * @param {number} displayWidth - Largura da imagem exibida
+     * @param {number} displayHeight - Altura da imagem exibida
      * @private
      */
-    drawEXIFInfo(exifData, config, image) {
+    drawEXIFInfo(exifData, config, displayWidth, displayHeight) {
         const x = config.frameWidth;
-        const y = config.frameWidth + image.height;
-        const width = image.width;
+        const y = config.frameWidth + displayHeight;
+        const width = displayWidth;
         const height = config.bottomSpacing;
 
         // Desenhar background do texto
@@ -353,8 +441,24 @@ class PreviewManager {
      * @private
      */
     renderToCanvas(framedCanvas) {
-        const displayWidth = this.canvas.clientWidth;
-        const displayHeight = this.canvas.clientHeight;
+        // Usar o tamanho do container se disponível
+        const container = this.canvas.parentElement;
+        let displayWidth = this.canvas.clientWidth;
+        let displayHeight = this.canvas.clientHeight;
+
+        // Se o canvas não tem tamanho, usar o do container
+        if (displayWidth === 0 || displayHeight === 0) {
+            displayWidth = container?.clientWidth || 600;
+            displayHeight = container?.clientHeight || 600;
+        }
+
+        // Garantir que haja um tamanho mínimo
+        displayWidth = Math.max(displayWidth, 300);
+        displayHeight = Math.max(displayHeight, 300);
+
+        // Definir o tamanho do canvas de exibição
+        this.canvas.width = displayWidth;
+        this.canvas.height = displayHeight;
 
         // Calcular escala para caber no canvas
         const scaleX = displayWidth / framedCanvas.width;

@@ -266,6 +266,18 @@ class UIManager {
             });
         });
 
+        // Aspect Ratio buttons
+        document.querySelectorAll('.btn-aspect-ratio').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelectorAll('.btn-aspect-ratio').forEach(b => b.classList.remove('active'));
+                const button = e.target.closest('.btn-aspect-ratio');
+                button?.classList.add('active');
+                this.currentPreset = null;
+                this.updateAllPresets();
+                this.triggerPreviewUpdate();
+            });
+        });
+
         // Export
         if (this.elements.exportBtn) {
             this.elements.exportBtn.addEventListener('click', () => {
@@ -370,7 +382,8 @@ class UIManager {
             textColor: this.elements.textColor.value,
             textSize: parseInt(this.elements.textSize.value),
             fontFamily: this.elements.fontFamily.value,
-            textAlign: document.querySelector('.btn-alignment.active')?.dataset.align || 'left'
+            textAlign: document.querySelector('.btn-alignment.active')?.dataset.align || 'left',
+            aspectRatio: document.querySelector('.btn-aspect-ratio.active')?.dataset.ratio || 'original'
         };
     }
 

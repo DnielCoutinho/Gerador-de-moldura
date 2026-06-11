@@ -582,9 +582,11 @@ input[type="range"]::-moz-range-thumb:hover {
     display: flex;
     align-items: center;
     justify-content: center;
-    min-height: 300px;
-    max-height: 600px;
+    min-height: 500px;
+    max-height: 800px;
     overflow: auto;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-color);
 }
 
 .preview-card__canvas {
@@ -818,6 +820,41 @@ input[type="range"]::-moz-range-thumb:hover {
     background-color: var(--color-brown-coffee);
     border-color: var(--color-brown-coffee);
     color: white;
+}
+
+/* ============ ASPECT RATIO BUTTONS ============ */
+.aspect-ratio-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--spacing-sm);
+}
+
+.btn-aspect-ratio {
+    padding: var(--spacing-md) var(--spacing-sm);
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius-md);
+    background-color: var(--bg-primary);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-primary);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-medium);
+    min-height: 40px;
+}
+
+.btn-aspect-ratio:hover {
+    border-color: var(--color-sand);
+    background-color: rgba(220, 203, 179, 0.2);
+}
+
+.btn-aspect-ratio.active {
+    background-color: var(--color-brown-coffee);
+    border-color: var(--color-brown-coffee);
+    color: white;
+    box-shadow: 0 2px 8px rgba(107, 79, 58, 0.2);
 }
 
 /* ============ TOAST NOTIFICATION ============ */

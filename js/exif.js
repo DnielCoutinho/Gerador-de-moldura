@@ -191,6 +191,17 @@ class EXIFReader {
                 const count = data.getUint32(offset + 4, littleEndian);
                 const valueOffset = offset + 8;
 
+                // Processar tags principais (câmera, resolução, etc)
+                if (this.exifTags[tag]) {
+                    const tagInfo = this.exifTags[tag];
+                    const value = this.parseTagValue(data, type, count, valueOffset, littleEndian);
+                    exif[tagInfo.name] = {
+                        name: tagInfo.name,
+                        value: value,
+                        category: tagInfo.category
+                    };
+                }
+
                 // Processas tags fotográficas principais
                 if (this.photoTags[tag]) {
                     const tagInfo = this.photoTags[tag];
@@ -202,7 +213,7 @@ class EXIFReader {
                     };
                 }
 
-                // Processar IFD de EXIF
+                // Processar IFD de EXIF (0x8825 é o pointer para Exif IFD)
                 if (tag === 0x8825) {
                     const exifIFDOffset = data.getUint32(valueOffset, littleEndian);
                     this.parseExifSubIFD(data, ifdOffset + exifIFDOffset, littleEndian, exif);
@@ -335,13 +346,15 @@ class EXIFReader {
     formatEXIFData(exifData) {
         const formatted = {};
 
-        // Dados de câmera
-        if (exifData.camera_make || exifData.Marca) {
-            formatted.camera_make = exifData.camera_make?.value || exifData.Marca?.value || 'Desconhecido';
+        // Dados de câmera - procurar por ambas as chaves (em inglês e português)
+        let cameraMake = exifData.camera_make?.value || exifData['Marca']?.value || exifData['Make']?.value;
+        if (cameraMake) {
+            formatted.camera_make = cameraMake;
         }
 
-        if (exifData.camera_model || exifData.Modelo) {
-            formatted.camera_model = exifData.camera_model?.value || exifData.Modelo?.value || 'Desconhecido';
+        let cameraModel = exifData.camera_model?.value || exifData['Modelo']?.value || exifData['Model']?.value;
+        if (cameraModel) {
+            formatted.camera_model = cameraModel;
         }
 
         // Dados fotográficos
@@ -355,7 +368,11 @@ class EXIFReader {
 
         if (exifData.aperture) {
             const apertureValue = exifData.aperture.value;
-            formatted.aperture = `ƒ/${parseFloat(apertureValue).toFixed(1)}`;
+            // Converter APEX value para f-number se necessário
+            if (apertureValue && !isNaN(apertureValue)) {
+                const fNumber = Math.pow(2, apertureValue / 2);
+                formatted.aperture = `ƒ/${fNumber.toFixed(1)}`;
+            }
         }
 
         if (exifData.focallength) {
@@ -368,12 +385,14 @@ class EXIFReader {
             formatted.focallength35 = `${focalLength35}mm (35mm)`;
         }
 
-        // Data
-        if (exifData.datetime || exifData['Data/Hora']) {
-            const dateString = exifData.datetime?.value || exifData['Data/Hora']?.value;
-            if (dateString) {
-                formatted.datetime = this.formatDate(dateString);
-            }
+        // Data - procurar por várias formas de armazenar
+        let dateString = exifData.datetime?.value || 
+                         exifData['Data/Hora']?.value ||
+                         exifData['Data Original']?.value ||
+                         exifData['Date/Time Original']?.value;
+        
+        if (dateString) {
+            formatted.datetime = this.formatDate(dateString);
         }
 
         return formatted;
