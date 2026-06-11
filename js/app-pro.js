@@ -85,6 +85,29 @@ class FrameStudioProApp {
         clearBtn?.addEventListener('click', () => this.clearGallery());
         exportBtn?.addEventListener('click', () => this.exportImage());
         themeToggle?.addEventListener('click', () => this.uiManager.toggleTheme());
+
+        // CORREÇÃO: Adiciona escutador no painel para atualizar a pré-visualização em tempo real
+        const controlPanel = document.querySelector('.control-panel');
+        if (controlPanel) {
+            // Atualiza imediatamente enquanto você arrasta os sliders numéricos ou muda as cores
+            controlPanel.addEventListener('input', () => {
+                if (this.currentImageIndex !== -1) {
+                    this.updatePreview();
+                }
+            });
+            
+            // Atualiza quando você clica nos botões de Proporção, Estilos (Presets) e Alinhamento
+            controlPanel.addEventListener('click', (e) => {
+                if (e.target.closest('button') || e.target.closest('.preset-card') || e.target.closest('.btn-ratio')) {
+                    // Dá um tempo mínimo (50ms) para os botões mudarem de estado (ex: classe 'active') antes de repintar
+                    setTimeout(() => {
+                        if (this.currentImageIndex !== -1) {
+                            this.updatePreview();
+                        }
+                    }, 50);
+                }
+            });
+        }
     }
 
     async handleFiles(files) {
