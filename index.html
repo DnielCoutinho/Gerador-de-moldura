@@ -3,31 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Frame Studio - Molduras EXIF Profissionais</title>
-    <meta name="description" content="Crie molduras elegantes para suas fotografias com dados EXIF automaticamente.">
+    <title>Frame Studio Pro - Editor de Molduras EXIF Profissional</title>
+    <meta name="description" content="Software profissional para adicionar molduras elegantes em fotografias com dados EXIF. Perfeito para fotógrafos.">
     
-    <!-- Preconnect para otimização -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
     
-    <!-- Google Fonts - Tipografia Refinada -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Cormorant+Garamond:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- CSS -->
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/components.css">
-    <link rel="stylesheet" href="css/responsive.css">
+    <link rel="stylesheet" href="css/style-new.css">
 </head>
-<body>
-    <!-- Header Premium -->
+<body class="dark-mode">
+    <!-- Header -->
     <header class="header">
         <div class="header__container">
             <div class="logo">
-                <span class="logo__text">Frame Studio</span>
-                <span class="logo__badge">EXIF Pro</span>
+                <span class="logo__icon">🎬</span>
+                <div>
+                    <div class="logo__title">Frame Studio</div>
+                    <div class="logo__subtitle">Pro</div>
+                </div>
             </div>
             <nav class="header__nav">
-                <button class="btn-icon" id="themeToggle" aria-label="Alternar tema">
+                <button class="btn-icon" id="themeToggle" aria-label="Alternar tema" title="Alternar tema">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <circle cx="12" cy="12" r="5"></circle>
                         <line x1="12" y1="1" x2="12" y2="3"></line>
@@ -44,222 +41,177 @@
         </div>
     </header>
 
-    <!-- Container Principal -->
+    <!-- Main App -->
     <main class="app">
-        <div class="app__container">
-            <!-- Seção Upload/Visualização -->
-            <div class="section section--left">
-                <!-- Upload Area -->
-                <div class="upload-area" id="uploadArea">
-                    <div class="upload-area__content">
-                        <svg class="upload-area__icon" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                            <polyline points="17 8 12 3 7 8"></polyline>
-                            <line x1="12" y1="3" x2="12" y2="15"></line>
-                        </svg>
-                        <h2 class="upload-area__title">Arraste suas fotos aqui</h2>
-                        <p class="upload-area__subtitle">ou clique para selecionar</p>
-                        <p class="upload-area__hint">Formatos: JPG, PNG, WebP</p>
-                    </div>
-                    <input 
-                        type="file" 
-                        id="fileInput" 
-                        multiple 
-                        accept="image/*"
-                        aria-label="Selecionar imagens"
-                        hidden
-                    >
-                </div>
-
-                <!-- Gallery de Imagens -->
-                <div class="gallery" id="gallery" style="display: none;">
-                    <div class="gallery__header">
-                        <h3 class="gallery__title">Suas fotos</h3>
-                        <button class="btn btn--secondary btn--small" id="clearGallery">Limpar</button>
-                    </div>
-                    <div class="gallery__grid" id="galleryGrid"></div>
-                </div>
-            </div>
-
-            <!-- Seção Editor/Preview -->
-            <div class="section section--right">
-                <!-- Preview Card -->
-                <div class="preview-card" id="previewCard" style="display: none;">
-                    <div class="preview-card__header">
-                        <h3 class="preview-card__title">Pré-visualização</h3>
-                        <div class="preview-card__controls">
-                            <button class="btn-icon" id="zoomOut" aria-label="Diminuir zoom" title="Diminuir zoom">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <circle cx="11" cy="11" r="8"></circle>
-                                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                                    <line x1="8" y1="11" x2="14" y2="11"></line>
-                                </svg>
-                            </button>
-                            <span class="preview-card__zoom" id="zoomLevel">100%</span>
-                            <button class="btn-icon" id="zoomIn" aria-label="Aumentar zoom" title="Aumentar zoom">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <circle cx="11" cy="11" r="8"></circle>
-                                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                                    <line x1="11" y1="8" x2="11" y2="14"></line>
-                                    <line x1="8" y1="11" x2="14" y2="11"></line>
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="preview-card__canvas-wrapper">
-                        <canvas id="previewCanvas" class="preview-card__canvas"></canvas>
+        <div class="app-grid">
+            <!-- Sidebar -->
+            <aside class="sidebar">
+                <!-- Upload Zone -->
+                <div class="upload-zone" id="uploadZone">
+                    <input type="file" id="fileInput" multiple accept="image/*" hidden aria-label="Selecionar imagens">
+                    <div class="upload-zone__content">
+                        <div class="upload-zone__icon">📸</div>
+                        <h2 class="upload-zone__title">Arraste fotos</h2>
+                        <p class="upload-zone__text">ou <button class="upload-zone__link" id="uploadBtn">clique</button></p>
+                        <p class="upload-zone__hint">Até 50MB</p>
                     </div>
                 </div>
 
-                <!-- EXIF Info -->
-                <div class="exif-info" id="exifInfo" style="display: none;">
-                    <h4 class="exif-info__title">Dados EXIF</h4>
-                    <div class="exif-info__grid" id="exifGrid"></div>
-                    <p class="exif-info__empty" id="exifEmpty">Sem dados EXIF disponíveis</p>
-                </div>
-
-                <!-- Editor Panel -->
-                <div class="editor-panel" id="editorPanel" style="display: none;">
-                    <div class="editor-panel__header">
-                        <h3 class="editor-panel__title">Editor de Moldura</h3>
-                        <button class="btn-icon" id="toggleEditor" aria-label="Recolher editor">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <polyline points="15 18 9 12 15 6"></polyline>
+                <!-- Gallery Section -->
+                <div class="gallery-section" id="gallerySection" style="display: none;">
+                    <div class="section-header">
+                        <h3 class="section-title">Fotos</h3>
+                        <button class="btn-icon btn-icon--small" id="clearGalleryBtn" title="Limpar todas">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="3 6 5 6 21 6"></polyline>
+                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
                             </svg>
                         </button>
                     </div>
+                    <div class="gallery" id="gallery"></div>
+                </div>
 
-                    <div class="editor-panel__content" id="editorContent">
-                        <!-- Presets -->
-                        <div class="editor-section">
-                            <label class="editor-label">Presets</label>
-                            <div class="presets-grid" id="presetsGrid"></div>
-                        </div>
+                <!-- EXIF Section -->
+                <div class="exif-section" id="exifSection" style="display: none;">
+                    <div class="section-header">
+                        <h3 class="section-title">EXIF</h3>
+                    </div>
+                    <div class="exif-data" id="exifData"></div>
+                </div>
+            </aside>
 
-                        <!-- Aspect Ratio Selection -->
-                        <div class="editor-section">
-                            <label class="editor-label">Formato da Foto</label>
-                            <div class="aspect-ratio-grid" id="aspectRatioGrid">
-                                <button class="btn-aspect-ratio active" data-ratio="original" title="Formato original da foto">Original</button>
-                                <button class="btn-aspect-ratio" data-ratio="16:9" title="Paisagem 16:9">16:9</button>
-                                <button class="btn-aspect-ratio" data-ratio="4:3" title="Paisagem 4:3">4:3</button>
-                                <button class="btn-aspect-ratio" data-ratio="1:1" title="Quadrado">1:1</button>
-                                <button class="btn-aspect-ratio" data-ratio="3:2" title="Paisagem 3:2">3:2</button>
-                                <button class="btn-aspect-ratio" data-ratio="9:16" title="Vertical 9:16">9:16</button>
-                                <button class="btn-aspect-ratio" data-ratio="3:4" title="Vertical 3:4">3:4</button>
-                                <button class="btn-aspect-ratio" data-ratio="2:3" title="Vertical 2:3">2:3</button>
+            <!-- Main Content -->
+            <div class="main-content">
+                <!-- Preview Area -->
+                <div class="preview-container" id="previewContainer" style="display: none;">
+                    <div class="preview-header">
+                        <h2 class="preview-title">Pré-visualização</h2>
+                        <div class="preview-controls">
+                            <div class="zoom-control">
+                                <button class="btn-icon" id="zoomOut" title="Diminuir zoom" aria-label="Diminuir zoom">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <circle cx="11" cy="11" r="8"></circle>
+                                        <line x1="8" y1="11" x2="14" y2="11"></line>
+                                    </svg>
+                                </button>
+                                <span class="zoom-level" id="zoomLevel">100%</span>
+                                <button class="btn-icon" id="zoomIn" title="Aumentar zoom" aria-label="Aumentar zoom">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <circle cx="11" cy="11" r="8"></circle>
+                                        <line x1="11" y1="8" x2="11" y2="14"></line>
+                                        <line x1="8" y1="11" x2="14" y2="11"></line>
+                                    </svg>
+                                </button>
                             </div>
                         </div>
+                    </div>
+                    <div class="preview-canvas-wrapper">
+                        <canvas id="previewCanvas" class="preview-canvas"></canvas>
+                    </div>
+                </div>
 
-                        <!-- Frame Color -->
-                        <div class="editor-section">
-                            <label class="editor-label">
-                                Cor da Moldura
-                                <input 
-                                    type="color" 
-                                    id="frameColor" 
-                                    value="#DCCBB3"
-                                    class="editor-color-input"
-                                    aria-label="Cor da moldura"
-                                >
-                            </label>
+                <!-- Empty State -->
+                <div class="empty-state" id="emptyState">
+                    <div class="empty-state__icon">🎨</div>
+                    <h3 class="empty-state__title">Comece adicionando uma foto</h3>
+                    <p class="empty-state__text">Selecione uma imagem para criar molduras profissionais</p>
+                </div>
+            </div>
+
+            <!-- Control Panel -->
+            <aside class="control-panel">
+                <div class="panel-scroll">
+                    <!-- Presets -->
+                    <div class="control-section">
+                        <h3 class="control-section__title">Estilos</h3>
+                        <div class="presets-container" id="presetsContainer"></div>
+                    </div>
+
+                    <!-- Aspect Ratio -->
+                    <div class="control-section">
+                        <label class="control-label">Formato</label>
+                        <div class="ratio-buttons" id="ratioButtons">
+                            <button class="btn-ratio active" data-ratio="original">Original</button>
+                            <button class="btn-ratio" data-ratio="16:9">16:9</button>
+                            <button class="btn-ratio" data-ratio="4:3">4:3</button>
+                            <button class="btn-ratio" data-ratio="1:1">1:1</button>
+                            <button class="btn-ratio" data-ratio="3:2">3:2</button>
+                            <button class="btn-ratio" data-ratio="9:16">9:16</button>
+                            <button class="btn-ratio" data-ratio="3:4">3:4</button>
+                            <button class="btn-ratio" data-ratio="2:3">2:3</button>
+                        </div>
+                    </div>
+
+                    <!-- Frame Settings -->
+                    <div class="control-section">
+                        <label class="control-label">Moldura</label>
+                        
+                        <div class="control-group">
+                            <label class="sub-label">Cor</label>
+                            <input type="color" id="frameColor" value="#B48A68" class="color-input" aria-label="Cor da moldura">
                         </div>
 
-                        <!-- Frame Width -->
-                        <div class="editor-section">
-                            <label class="editor-label">
-                                Espessura da Moldura: <span id="frameWidthValue">40</span>px
-                            </label>
-                            <input 
-                                type="range" 
-                                id="frameWidth" 
-                                min="0" 
-                                max="200" 
-                                value="40"
-                                class="editor-slider"
-                                aria-label="Espessura da moldura"
-                            >
+                        <div class="control-group">
+                            <label class="sub-label">Espessura</label>
+                            <div class="number-input-group">
+                                <button class="btn-number" id="frameWidthDecrement">−</button>
+                                <input type="number" id="frameWidth" value="40" min="0" max="200" class="number-input" aria-label="Espessura da moldura">
+                                <button class="btn-number" id="frameWidthIncrement">+</button>
+                            </div>
+                            <input type="range" id="frameWidthSlider" min="0" max="200" value="40" class="slider">
                         </div>
 
-                        <!-- Bottom Spacing -->
-                        <div class="editor-section">
-                            <label class="editor-label">
-                                Espaço Inferior: <span id="bottomSpacingValue">100</span>px
-                            </label>
-                            <input 
-                                type="range" 
-                                id="bottomSpacing" 
-                                min="0" 
-                                max="300" 
-                                value="100"
-                                class="editor-slider"
-                                aria-label="Espaço inferior"
-                            >
+                        <div class="control-group">
+                            <label class="sub-label">Espaço Inferior</label>
+                            <div class="number-input-group">
+                                <button class="btn-number" id="bottomSpacingDecrement">−</button>
+                                <input type="number" id="bottomSpacing" value="100" min="0" max="300" class="number-input" aria-label="Espaço inferior">
+                                <button class="btn-number" id="bottomSpacingIncrement">+</button>
+                            </div>
+                            <input type="range" id="bottomSpacingSlider" min="0" max="300" value="100" class="slider">
+                        </div>
+                    </div>
+
+                    <!-- Text Settings -->
+                    <div class="control-section">
+                        <label class="control-label">Texto</label>
+                        
+                        <div class="control-group">
+                            <label class="sub-label">Cor</label>
+                            <input type="color" id="textColor" value="#FFFFFF" class="color-input" aria-label="Cor do texto">
                         </div>
 
-                        <!-- Text Color -->
-                        <div class="editor-section">
-                            <label class="editor-label">
-                                Cor do Texto
-                                <input 
-                                    type="color" 
-                                    id="textColor" 
-                                    value="#1A1A1A"
-                                    class="editor-color-input"
-                                    aria-label="Cor do texto"
-                                >
-                            </label>
+                        <div class="control-group">
+                            <label class="sub-label">Tamanho</label>
+                            <div class="number-input-group">
+                                <button class="btn-number" id="textSizeDecrement">−</button>
+                                <input type="number" id="textSize" value="14" min="8" max="32" class="number-input" aria-label="Tamanho do texto">
+                                <button class="btn-number" id="textSizeIncrement">+</button>
+                            </div>
+                            <input type="range" id="textSizeSlider" min="8" max="32" value="14" class="slider">
                         </div>
 
-                        <!-- Font Selection -->
-                        <div class="editor-section">
-                            <label class="editor-label">Fonte</label>
-                            <select id="fontFamily" class="editor-select" aria-label="Família de fonte">
-                                <option value="Poppins">Poppins (Moderno)</option>
-                                <option value="Cormorant Garamond">Cormorant Garamond (Elegante)</option>
-                                <option value="Georgia">Georgia (Clássico)</option>
-                                <option value="Courier New">Courier New (Monospace)</option>
-                            </select>
-                        </div>
-
-                        <!-- Text Size -->
-                        <div class="editor-section">
-                            <label class="editor-label">
-                                Tamanho do Texto: <span id="textSizeValue">14</span>px
-                            </label>
-                            <input 
-                                type="range" 
-                                id="textSize" 
-                                min="8" 
-                                max="32" 
-                                value="14"
-                                class="editor-slider"
-                                aria-label="Tamanho do texto"
-                            >
-                        </div>
-
-                        <!-- Text Alignment -->
-                        <div class="editor-section">
-                            <label class="editor-label">Alinhamento</label>
-                            <div class="alignment-buttons">
-                                <button class="btn-alignment active" data-align="left" aria-label="Alinhar à esquerda" title="Esquerda">
-                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <div class="control-group">
+                            <label class="sub-label">Alinhamento</label>
+                            <div class="align-buttons">
+                                <button class="btn-align active" data-align="left" title="Esquerda" aria-label="Alinhar à esquerda">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                         <line x1="17" y1="10" x2="3" y2="10"></line>
                                         <line x1="21" y1="6" x2="3" y2="6"></line>
                                         <line x1="21" y1="14" x2="3" y2="14"></line>
                                         <line x1="17" y1="18" x2="3" y2="18"></line>
                                     </svg>
                                 </button>
-                                <button class="btn-alignment" data-align="center" aria-label="Centralizar" title="Centro">
-                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <button class="btn-align" data-align="center" title="Centro" aria-label="Centralizar">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                         <line x1="18" y1="10" x2="6" y2="10"></line>
                                         <line x1="21" y1="6" x2="3" y2="6"></line>
                                         <line x1="21" y1="14" x2="3" y2="14"></line>
                                         <line x1="18" y1="18" x2="6" y2="18"></line>
                                     </svg>
                                 </button>
-                                <button class="btn-alignment" data-align="right" aria-label="Alinhar à direita" title="Direita">
-                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <button class="btn-align" data-align="right" title="Direita" aria-label="Alinhar à direita">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                         <line x1="21" y1="10" x2="7" y2="10"></line>
                                         <line x1="21" y1="6" x2="3" y2="6"></line>
                                         <line x1="21" y1="14" x2="3" y2="14"></line>
@@ -268,36 +220,34 @@
                                 </button>
                             </div>
                         </div>
+                    </div>
 
-                        <!-- Export Button -->
-                        <div class="editor-section editor-section--actions">
-                            <button class="btn btn--primary btn--full" id="exportBtn">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                                    <polyline points="7 10 12 15 17 10"></polyline>
-                                    <line x1="12" y1="15" x2="12" y2="3"></line>
-                                </svg>
-                                Exportar JPG
-                            </button>
-                        </div>
+                    <!-- Export -->
+                    <div class="control-section">
+                        <button class="btn btn-primary btn-full" id="exportBtn">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="7 10 12 15 17 10"></polyline>
+                                <line x1="12" y1="15" x2="12" y2="3"></line>
+                            </svg>
+                            Exportar JPG
+                        </button>
                     </div>
                 </div>
-            </div>
+            </aside>
         </div>
     </main>
 
-    <!-- Toast Notification -->
+    <!-- Notifications -->
     <div class="toast" id="toast" role="alert" aria-live="polite" aria-atomic="true"></div>
-
-    <!-- Loading Indicator -->
-    <div class="loading-spinner" id="loadingSpinner" style="display: none;">
-        <div class="loading-spinner__ring"></div>
+    <div class="loading-overlay" id="loadingOverlay" style="display: none;">
+        <div class="spinner"></div>
     </div>
 
-    <!-- JavaScript -->
-    <script src="js/exif.js"></script>
+    <!-- Scripts -->
+    <script src="js/exif-pro.js"></script>
     <script src="js/canvas.js"></script>
-    <script src="js/ui.js"></script>
-    <script src="js/app.js"></script>
+    <script src="js/ui-pro.js"></script>
+    <script src="js/app-pro.js"></script>
 </body>
 </html>
