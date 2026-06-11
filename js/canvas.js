@@ -1,6 +1,6 @@
 /**
  * =====================================================
- * FRAME STUDIO - CANVAS.JS (Versão Otimizada V3)
+ * FRAME STUDIO - CANVAS.JS (Versão Otimizada V4)
  * =====================================================
  */
 
@@ -16,7 +16,7 @@ class FrameGenerator {
             frameWidth: 40,
             bottomSpacing: 100,
             fontFamily: 'Courier New',
-            textSize: 14,
+            textSize: 24,
             textAlign: 'center',
             backgroundColor: '#FFFFFF',
             isPreview: false
@@ -51,9 +51,8 @@ class FrameGenerator {
         let displayWidth = image.width;
         let displayHeight = image.height;
 
-        // CORREÇÃO DE PERFORMANCE: Se for pré-visualização, reduzimos a resolução base para parar de travar
         if (config.isPreview) {
-            const maxPreviewSize = 1000; // Resolução suficiente para a tela, mas 10x mais rápida
+            const maxPreviewSize = 1000;
             if (displayWidth > maxPreviewSize || displayHeight > maxPreviewSize) {
                 const ratio = Math.min(maxPreviewSize / displayWidth, maxPreviewSize / displayHeight);
                 displayWidth = Math.round(displayWidth * ratio);
@@ -61,7 +60,6 @@ class FrameGenerator {
             }
         }
 
-        // CORREÇÃO: Escala relativa baseada na largura (garante que texto e borda apareçam)
         const scale = displayWidth / 1000;
         const scaledConfig = {
             ...config,
@@ -78,14 +76,10 @@ class FrameGenerator {
         this.canvas.height = height;
         this.ctx = this.canvas.getContext('2d', { alpha: false });
 
-        // Desenhar Fundo
         this.ctx.fillStyle = scaledConfig.frameColor;
         this.ctx.fillRect(0, 0, width, height);
-
-        // Desenhar Foto
         this.ctx.drawImage(image, scaledConfig.frameWidth, scaledConfig.frameWidth, displayWidth, displayHeight);
 
-        // Desenhar Textos EXIF
         if (Object.keys(exifData).length > 0) {
             this.drawEXIFInfo(exifData, scaledConfig, displayWidth, displayHeight);
         }
@@ -93,54 +87,95 @@ class FrameGenerator {
         return this.canvas;
     }
 
+    getLighterColor(hex, opacity) {
+        let r = 0, g = 0, b = 0;
+        if (hex.startsWith('#')) {
+            let cleanHex = hex.replace('#', '');
+            if (cleanHex.length === 3) cleanHex = cleanHex.split('').map(c => c + c).join('');
+            if (cleanHex.length === 6) {
+                r = parseInt(cleanHex.substring(0, 2), 16);
+                g = parseInt(cleanHex.substring(2, 4), 16);
+                b = parseInt(cleanHex.substring(4, 6), 16);
+            }
+        }
+        return `rgba(${r}, ${g}, ${b}, ${opacity})`;
+    }
+
     drawEXIFInfo(exifData, config, displayWidth, displayHeight) {
         const x = config.frameWidth;
         const y = config.frameWidth + displayHeight;
         const height = config.bottomSpacing;
 
-        this.ctx.fillStyle = config.textColor;
         this.ctx.textBaseline = 'middle';
-
-        // Definir Posição X pelo Alinhamento
-        if (config.textAlign === 'center') {
-            this.ctx.textAlign = 'center';
-            this.textX = x + displayWidth / 2;
-        } else if (config.textAlign === 'right') {
-            this.ctx.textAlign = 'right';
-            this.textX = x + displayWidth - config.textSize;
-        } else {
-            this.ctx.textAlign = 'left';
-            this.textX = x + config.textSize;
-        }
-
         const lines = this.buildEXIFLines(exifData);
         
-        // Desenhar "Shot on Câmera" (Linha 1 - Bold)
+        this.textX = x + (displayWidth / 2); // default center
+        if (config.textAlign === 'right') this.textX = x + displayWidth - config.textSize;
+        if (config.textAlign === 'left') this.textX = x + config.textSize;
+
+        // Linha 1: Texto misto (Normal + Negrito)
         if (lines[0]) {
-            this.ctx.font = `bold ${config.textSize}px "${config.fontFamily}", monospace, sans-serif`;
-            this.ctx.fillText(lines[0], this.textX, y + (height * 0.4));
+            const { prefix, boldText } = lines[0];
+            
+            const normalFont = `normal ${config.textSize}px "${config.fontFamily}", monospace, sans-serif`;
+            const boldFont = `bold ${config.textSize}px "${config.fontFamily}", monospace, sans-serif`;
+            
+            this.ctx.font = normalFont;
+            const prefixWidth = this.ctx.measureText(prefix).width;
+            
+            this.ctx.font = boldFont;
+            const boldWidth = this.ctx.measureText(boldText).width;
+            
+            const totalWidth = prefixWidth + boldWidth;
+            
+            let startX = this.textX;
+            if (config.textAlign === 'center') {
+                startX = this.textX - (totalWidth / 2);
+                this.ctx.textAlign = 'left'; 
+            } else if (config.textAlign === 'right') {
+                startX = this.textX - totalWidth;
+                this.ctx.textAlign = 'left';
+            } else {
+                this.ctx.textAlign = 'left';
+            }
+            
+            this.ctx.fillStyle = config.textColor;
+            this.ctx.font = normalFont;
+            this.ctx.fillText(prefix, startX, y + (height * 0.42));
+            
+            this.ctx.font = boldFont;
+            this.ctx.fillText(boldText, startX + prefixWidth, y + (height * 0.42));
+            
+            this.ctx.textAlign = config.textAlign; // Restaura
         }
 
-        // Desenhar "50mm  f/1.8  1/200s  ISO100" (Linha 2 - Normal)
+        // Linha 2: Configurações em cor sutil (Cinza translúcido)
         if (lines[1]) {
-            this.ctx.font = `normal ${config.textSize * 0.85}px "${config.fontFamily}", monospace, sans-serif`;
-            this.ctx.fillText(lines[1], this.textX, y + (height * 0.65));
+            this.ctx.font = `normal ${config.textSize * 0.75}px "${config.fontFamily}", monospace, sans-serif`;
+            this.ctx.fillStyle = this.getLighterColor(config.textColor, 0.6); // 60% de opacidade
+            this.ctx.textAlign = config.textAlign;
+            this.ctx.fillText(lines[1], this.textX, y + (height * 0.70));
         }
     }
 
     buildEXIFLines(exifData) {
         const lines = [];
 
-        // FORMATO IDÊNTICO AO EXEMPLO 3
-        // Linha 1: Shot on Canon EOS R100
         if (exifData.camera_make || exifData.camera_model) {
-            let make = exifData.camera_make || '';
-            let model = exifData.camera_model || '';
-            let cameraName = model.startsWith(make) ? model : `${make} ${model}`;
-            lines.push(`Shot on ${cameraName}`.trim());
+            let make = (exifData.camera_make || '').trim();
+            let model = (exifData.camera_model || '').trim();
+            
+            // Corrige o bug de repetir a marca (ex: Canon Canon EOS R100)
+            let cameraName = model;
+            if (make && !model.toLowerCase().includes(make.toLowerCase())) {
+                cameraName = `${make} ${model}`;
+            }
+            
+            lines.push({ prefix: 'Shot on ', boldText: cameraName });
+        } else {
+            lines.push(null);
         }
 
-        // Linha 2: 35mm    f/4.0    1/1000s    ISO100
         const photoData = [];
         if (exifData.focal_length) photoData.push(exifData.focal_length);
         if (exifData.aperture) photoData.push(exifData.aperture);
@@ -148,7 +183,7 @@ class FrameGenerator {
         if (exifData.iso) photoData.push(exifData.iso);
 
         if (photoData.length > 0) {
-            lines.push(photoData.join('    ')); // Quatro espaços para dar o visual retrô limpo
+            lines.push(photoData.join('    ')); // 4 espaços para o visual vintage
         }
 
         return lines;
@@ -184,7 +219,6 @@ class PreviewManager {
         this.isRendering = true;
 
         try {
-            // Passa a flag de pré-visualização para não travar o PC
             const framedImage = await this.generator.generateFrame(image, exifData, { ...config, isPreview: true });
             this.renderToCanvas(framedImage);
 
@@ -208,8 +242,6 @@ class PreviewManager {
 
         const scaleX = displayWidth / framedCanvas.width;
         const scaleY = displayHeight / framedCanvas.height;
-        
-        // CORREÇÃO DE DISTÂNCIA: Mudado de 0.9 para 1.0 para a imagem ocupar todo o espaço possível
         const scale = Math.min(scaleX, scaleY, 1) * 1.0; 
         const finalScale = scale * this.zoomLevel;
 
@@ -222,7 +254,6 @@ class PreviewManager {
         this.ctx.fillStyle = getComputedStyle(this.canvas).backgroundColor || '#0E0D0B';
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
-        // Sombra suave para separar do fundo
         this.ctx.shadowColor = 'rgba(0, 0, 0, 0.4)';
         this.ctx.shadowBlur = 15;
         this.ctx.shadowOffsetY = 5;
@@ -238,9 +269,7 @@ class PreviewManager {
     zoomIn() { this.setZoom(this.zoomLevel + 0.1); }
     zoomOut() { this.setZoom(this.zoomLevel - 0.1); }
     
-    // O exportImage daqui vai pedir para o gerador rodar sem a tag isPreview
     async exportImage(image, exifData, config, format = 'jpeg', quality = 0.95) {
-        // Gera o quadro na resolução original MÁXIMA
         await this.generator.generateFrame(image, exifData, { ...config, isPreview: false });
         return this.generator.exportImage(format, parseFloat(quality));
     }

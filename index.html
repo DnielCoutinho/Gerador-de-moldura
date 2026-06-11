@@ -13,6 +13,7 @@
     <link rel="stylesheet" href="css/style-new.css">
 </head>
 <body class="dark-mode">
+    <!-- Header -->
     <header class="header">
         <div class="header__container">
             <div class="logo">
@@ -40,9 +41,12 @@
         </div>
     </header>
 
+    <!-- Main App -->
     <main class="app">
         <div class="app-grid">
+            <!-- Sidebar -->
             <aside class="sidebar">
+                <!-- Upload Zone -->
                 <div class="upload-zone" id="uploadZone">
                     <input type="file" id="fileInput" multiple accept="image/*" hidden aria-label="Selecionar imagens">
                     <div class="upload-zone__content">
@@ -53,6 +57,7 @@
                     </div>
                 </div>
 
+                <!-- Gallery Section -->
                 <div class="gallery-section" id="gallerySection" style="display: none;">
                     <div class="section-header">
                         <h3 class="section-title">Fotos</h3>
@@ -66,6 +71,7 @@
                     <div class="gallery" id="gallery"></div>
                 </div>
 
+                <!-- EXIF Section -->
                 <div class="exif-section" id="exifSection" style="display: none;">
                     <div class="section-header">
                         <h3 class="section-title">EXIF</h3>
@@ -74,7 +80,9 @@
                 </div>
             </aside>
 
+            <!-- Main Content -->
             <div class="main-content">
+                <!-- Preview Area -->
                 <div class="preview-container" id="previewContainer" style="display: none;">
                     <div class="preview-header">
                         <h2 class="preview-title">Pré-visualização</h2>
@@ -102,6 +110,7 @@
                     </div>
                 </div>
 
+                <!-- Empty State -->
                 <div class="empty-state" id="emptyState">
                     <div class="empty-state__icon">🎨</div>
                     <h3 class="empty-state__title">Comece adicionando uma foto</h3>
@@ -109,13 +118,16 @@
                 </div>
             </div>
 
+            <!-- Control Panel -->
             <aside class="control-panel">
                 <div class="panel-scroll">
+                    <!-- Presets -->
                     <div class="control-section">
                         <h3 class="control-section__title">Estilos</h3>
                         <div class="presets-container" id="presetsContainer"></div>
                     </div>
 
+                    <!-- Aspect Ratio -->
                     <div class="control-section">
                         <label class="control-label">Formato</label>
                         <div class="ratio-buttons" id="ratioButtons">
@@ -130,12 +142,14 @@
                         </div>
                     </div>
 
+                    <!-- Frame Settings -->
                     <div class="control-section">
                         <label class="control-label">Moldura</label>
                         
                         <div class="control-group">
                             <label class="sub-label">Cor</label>
-                            <input type="color" id="frameColor" value="#B48A68" class="color-input" aria-label="Cor da moldura">
+                            <!-- CORREÇÃO: Cor padrão agora é branca #FFFFFF -->
+                            <input type="color" id="frameColor" value="#FFFFFF" class="color-input" aria-label="Cor da moldura">
                         </div>
 
                         <div class="control-group">
@@ -159,6 +173,7 @@
                         </div>
                     </div>
 
+                    <!-- Text Settings -->
                     <div class="control-section">
                         <label class="control-label">Texto</label>
                         
@@ -181,10 +196,11 @@
                             <label class="sub-label">Tamanho</label>
                             <div class="number-input-group">
                                 <button class="btn-number" id="textSizeDecrement">−</button>
-                                <input type="number" id="textSize" value="14" min="8" max="32" class="number-input" aria-label="Tamanho do texto">
+                                <!-- CORREÇÃO: Tamanho padrão alterado para 24 e máximo estendido -->
+                                <input type="number" id="textSize" value="24" min="8" max="48" class="number-input" aria-label="Tamanho do texto">
                                 <button class="btn-number" id="textSizeIncrement">+</button>
                             </div>
-                            <input type="range" id="textSizeSlider" min="8" max="32" value="14" class="slider">
+                            <input type="range" id="textSizeSlider" min="8" max="48" value="24" class="slider">
                         </div>
 
                         <div class="control-group">
@@ -218,6 +234,7 @@
                         </div>
                     </div>
 
+                    <!-- Export -->
                     <div class="control-section">
                         <div class="control-group">
                             <label class="sub-label">Qualidade Final</label>
@@ -242,11 +259,13 @@
         </div>
     </main>
 
+    <!-- Notifications -->
     <div class="toast" id="toast" role="alert" aria-live="polite" aria-atomic="true"></div>
     <div class="loading-overlay" id="loadingOverlay" style="display: none;">
         <div class="spinner"></div>
     </div>
 
+    <!-- Scripts -->
     <script src="js/exif-pro.js"></script>
     <script src="js/canvas.js"></script>
     <script src="js/ui-pro.js"></script>
