@@ -1,6 +1,6 @@
 /**
  * =====================================================
- * FRAME STUDIO - CANVAS.JS (Versão Otimizada V5 - Identico)
+ * FRAME STUDIO - CANVAS.JS (Versão Otimizada V5 - Idêntica)
  * =====================================================
  */
 
@@ -10,14 +10,14 @@ class FrameGenerator {
         this.ctx = null;
         this.imageCache = new Map();
         
-        // Padrão: Borda branca, Fonte 24
+        // Padrões atualizados: Fundo branco e texto um pouco maior
         this.config = {
             frameColor: '#FFFFFF',
             textColor: '#000000',
             frameWidth: 40,
             bottomSpacing: 100,
             fontFamily: 'Courier New',
-            textSize: 24,
+            textSize: 28, 
             textAlign: 'center',
             backgroundColor: '#FFFFFF',
             isPreview: false
@@ -116,7 +116,7 @@ class FrameGenerator {
 
         const centerY = y + (height / 2);
 
-        // Linha 1: Shot on Câmera (Misto de Fino e Negrito)
+        // Linha 1: Shot on Câmera (Fino + Negrito)
         if (lines[0]) {
             const { prefix, boldText } = lines[0];
             
@@ -149,13 +149,13 @@ class FrameGenerator {
             this.ctx.font = boldFont;
             this.ctx.fillText(boldText, startX + prefixWidth, centerY - (config.textSize * 0.4));
             
-            this.ctx.textAlign = config.textAlign; // Restaura
+            this.ctx.textAlign = config.textAlign; 
         }
 
-        // Linha 2: 50mm  f/6.3  1/320s  ISO100 (Cinza transparente, levemente menor)
+        // Linha 2: Lente e Fotometria (Cinza translúcido, sem data)
         if (lines[1]) {
             this.ctx.font = `normal ${config.textSize * 0.75}px "${config.fontFamily}", monospace, sans-serif`;
-            this.ctx.fillStyle = this.getLighterColor(config.textColor, 0.45); // 45% opacidade imita a referência perfeitamente
+            this.ctx.fillStyle = this.getLighterColor(config.textColor, 0.45); // 45% opacidade igual a referência
             this.ctx.fillText(lines[1], this.textX, centerY + (config.textSize * 0.8));
         }
     }
@@ -169,6 +169,7 @@ class FrameGenerator {
             let model = (exifData.camera_model || '').trim();
             
             let cameraName = model;
+            // Remove o bug da câmera duplicada (Canon Canon EOS R100)
             if (make && !model.toLowerCase().includes(make.toLowerCase())) {
                 cameraName = `${make} ${model}`;
             }
@@ -178,7 +179,7 @@ class FrameGenerator {
             lines.push(null);
         }
 
-        // 2. Configurações Fotográficas (Sem a Data)
+        // 2. Configurações Fotográficas
         const photoData = [];
         if (exifData.focal_length) photoData.push(exifData.focal_length);
         if (exifData.aperture) photoData.push(exifData.aperture);
@@ -186,7 +187,8 @@ class FrameGenerator {
         if (exifData.iso) photoData.push(exifData.iso);
 
         if (photoData.length > 0) {
-            lines.push(photoData.join('    ')); // Quatro espaços exatos
+            // Une com quatro espaços vazios para dar o visual retrô limpo da máquina de escrever
+            lines.push(photoData.join('    '));
         }
 
         return lines;

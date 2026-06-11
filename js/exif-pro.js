@@ -8,29 +8,16 @@
 class ExifReaderPro {
     constructor() {
         this.cache = new Map();
-        this.exifTags = this.buildExifTagMap();
-    }
-
-    buildExifTagMap() {
-        return {
-            // Tags Básicas
-            0x010F: { name: 'camera_make', display: 'Marca', category: 'camera' },
-            0x0110: { name: 'camera_model', display: 'Câmera', category: 'camera' },
-            0x0112: { name: 'orientation', display: 'Orientação', category: 'image' },
-            0x0131: { name: 'software', display: 'Software', category: 'software' },
-            0x0132: { name: 'datetime', display: 'Data/Hora', category: 'date' },
-            
-            // O Ponteiro Mágico: Isso avisa o código onde estão as configs da câmera!
-            0x8769: { name: 'exif_offset', display: 'EXIF IFD Pointer', category: 'pointer' },
-            
-            // Tags Fotográficas (Lidas dentro do 0x8769)
-            0x829A: { name: 'exposure_time', display: 'Tempo Exposição', category: 'photo' },
-            0x829D: { name: 'f_number', display: 'F-Number', category: 'photo' },
-            0x8827: { name: 'iso', display: 'ISO', category: 'photo' },
-            0x9201: { name: 'shutter_speed', display: 'Velocidade Obturador', category: 'photo' },
-            0x9202: { name: 'aperture', display: 'Abertura', category: 'photo' },
-            0x920A: { name: 'focal_length', display: 'Distância Focal', category: 'photo' },
-            0xA405: { name: 'focal_length_35mm', display: 'Distância Focal 35mm', category: 'photo' }
+        // Dicionário exato das tags universais
+        this.exifTags = {
+            0x010F: 'camera_make',
+            0x0110: 'camera_model',
+            0x0132: 'datetime',
+            0x829A: 'exposure_time',
+            0x829D: 'f_number',
+            0x8827: 'iso',       // ISOSpeedRatings padrão
+            0x8833: 'iso',       // ISOSpeed alternativo
+            0x920A: 'focal_length'
         };
     }
 
@@ -40,8 +27,8 @@ class ExifReaderPro {
 
         try {
             const arrayBuffer = await file.arrayBuffer();
-            const exifData = this.parseBuffer(arrayBuffer);
-            const formatted = this.formatExifData(exifData);
+            const exifRaw = this.parseBuffer(arrayBuffer);
+            const formatted = this.formatExifData(exifRaw);
             
             this.cache.set(cacheKey, formatted);
             return formatted;
@@ -56,150 +43,143 @@ class ExifReaderPro {
         const exif = {};
 
         try {
-            // Verifica JPEG
+            // Verifica se é JPEG válido (0xFFD8)
             if (data.byteLength < 4 || data.getUint8(0) !== 0xFF || data.getUint8(1) !== 0xD8) return exif;
 
             let offset = 2;
-            while (offset < data.byteLength - 8) {
+            while (offset < data.byteLength) {
                 if (data.getUint8(offset) !== 0xFF) { offset++; continue; }
                 const marker = data.getUint8(offset + 1);
 
-                if (marker === 0xE1) { 
-                    const length = data.getUint16(offset + 2, false);
-                    const exifStart = offset + 4;
-                    if (length >= 6) {
-                        const header = String.fromCharCode(data.getUint8(exifStart), data.getUint8(exifStart + 1), data.getUint8(exifStart + 2), data.getUint8(exifStart + 3));
-                        if (header === 'Exif') {
-                            const tiffStart = exifStart + 6;
-                            const littleEndian = data.getUint16(tiffStart, true) === 0x4949;
-                            this.parseTIFF(data, tiffStart, littleEndian, exif);
-                        }
-                    }
+                if (marker === 0xE1) { // APP1 - Pasta EXIF
+                    const tiffStart = offset + 10; // Pula cabeçalho "Exif\0\0"
+                    const littleEndian = data.getUint16(tiffStart, true) === 0x4949;
+                    this.parseTIFF(data, tiffStart, littleEndian, exif);
                     break;
-                } else if (marker === 0xD9 || marker === 0x00) { break; } 
-                else { offset += data.getUint16(offset + 2, false) + 2; }
+                }
+                offset += data.getUint16(offset + 2, false) + 2;
             }
-        } catch (e) {}
+        } catch (e) {
+            console.warn("Falha na leitura dos bytes:", e);
+        }
 
         return exif;
     }
 
     parseTIFF(data, tiffStart, littleEndian, exif) {
-        if (tiffStart + 8 > data.byteLength) return;
         const ifdOffset = data.getUint32(tiffStart + 4, littleEndian);
-        this.parseIFD(data, tiffStart, tiffStart + ifdOffset, littleEndian, exif, 0);
+        this.parseIFD(data, tiffStart, tiffStart + ifdOffset, littleEndian, exif);
     }
 
-    parseIFD(data, tiffStart, ifdOffset, littleEndian, exif, depth = 0) {
-        if (depth > 5 || ifdOffset > data.byteLength - 2) return;
+    parseIFD(data, tiffStart, ifdOffset, littleEndian, exif) {
+        if (ifdOffset > data.byteLength - 2) return;
 
         try {
-            let offset = ifdOffset;
-            const entryCount = data.getUint16(offset, littleEndian);
-            offset += 2;
-
-            for (let i = 0; i < entryCount; i++) {
-                if (offset + 12 > data.byteLength) break;
-
+            const entries = data.getUint16(ifdOffset, littleEndian);
+            for (let i = 0; i < entries; i++) {
+                const offset = ifdOffset + 2 + (i * 12);
                 const tag = data.getUint16(offset, littleEndian);
                 const type = data.getUint16(offset + 2, littleEndian);
                 const count = data.getUint32(offset + 4, littleEndian);
                 const valueOffset = offset + 8;
 
-                // Extrai as informações e guarda no objeto exif
-                if (this.exifTags[tag]) {
-                    const tagInfo = this.exifTags[tag];
-                    const value = this.parseTagValue(data, type, count, valueOffset, littleEndian, tiffStart);
-                    if (value !== null) {
-                        exif[tagInfo.name] = { value: value };
-                    }
-                }
-
-                // O GRANDE SEGREDO: Pular para a pasta de dados fotográficos (0x8769)
+                // O Pulo do Gato: 0x8769 é o ponteiro para os dados Fotográficos!
                 if (tag === 0x8769) {
-                    const exifIFDOffset = data.getUint32(valueOffset, littleEndian);
-                    if (exifIFDOffset > 0 && exifIFDOffset < data.byteLength) {
-                        this.parseIFD(data, tiffStart, tiffStart + exifIFDOffset, littleEndian, exif, depth + 1);
-                    }
+                    const subOffset = data.getUint32(valueOffset, littleEndian);
+                    this.parseIFD(data, tiffStart, tiffStart + subOffset, littleEndian, exif);
+                    continue;
                 }
 
-                offset += 12;
-            }
-        } catch (e) {}
-    }
-
-    parseTagValue(data, type, count, valueOffset, littleEndian, tiffStart) {
-        try {
-            const bytesPerComponent = { 1: 1, 2: 1, 3: 2, 4: 4, 5: 8, 7: 1, 9: 4, 10: 8 };
-            const totalBytes = (bytesPerComponent[type] || 1) * count;
-            let realOffset = valueOffset;
-            
-            if (totalBytes > 4) {
-                realOffset = tiffStart + data.getUint32(valueOffset, littleEndian);
-                if (realOffset + totalBytes > data.byteLength) return null;
-            }
-
-            switch (type) {
-                case 2: // ASCII
-                    let result = '';
-                    for (let i = 0; i < count; i++) {
-                        const byte = data.getUint8(realOffset + i);
-                        if (byte === 0) break;
-                        result += String.fromCharCode(byte);
-                    }
-                    return result.trim();
-                case 3: // SHORT
-                    return data.getUint16(realOffset, littleEndian);
-                case 4: // LONG
-                    return data.getUint32(realOffset, littleEndian);
-                case 5: // RATIONAL (Crucial para velocidade de obturador e abertura)
-                    const numerator = data.getUint32(realOffset, littleEndian);
-                    const denominator = data.getUint32(realOffset + 4, littleEndian);
-                    if (denominator === 0) return '0';
-                    
-                    // Lógica para manter o formato 1/320s perfeito
-                    if (numerator === 1) return `1/${denominator}`;
-                    if (numerator > 0 && numerator < denominator) {
-                        return `1/${Math.round(denominator / numerator)}`;
-                    }
-                    
-                    let val = numerator / denominator;
-                    return Number.isInteger(val) ? val.toString() : val.toFixed(1);
-                default:
-                    return null;
+                if (this.exifTags[tag]) {
+                    const name = this.exifTags[tag];
+                    const val = this.parseTagValue(data, tiffStart, type, count, valueOffset, littleEndian);
+                    if (val !== null) exif[name] = val;
+                }
             }
         } catch (e) {
-            return null;
+            console.warn("Falha no loop do IFD:", e);
         }
     }
 
-    formatExifData(exifData) {
+    parseTagValue(data, tiffStart, type, count, valueOffset, littleEndian) {
+        let offset = valueOffset;
+        const bytesPerType = [0, 1, 1, 2, 4, 8, 1, 1, 2, 4, 8, 4, 8];
+        const bytes = bytesPerType[type] || 0;
+        
+        // Se o valor ocupar mais de 4 bytes, o valueOffset é um ponteiro
+        if (bytes * count > 4) {
+            offset = tiffStart + data.getUint32(valueOffset, littleEndian);
+            if (offset > data.byteLength) return null;
+        }
+
+        switch (type) {
+            case 2: // ASCII (Texto)
+                let str = '';
+                for (let i = 0; i < count - 1; i++) {
+                    const char = data.getUint8(offset + i);
+                    if (char === 0) break;
+                    str += String.fromCharCode(char);
+                }
+                return str.trim();
+            case 3: // SHORT (Inteiro curto, usado no ISO)
+                return data.getUint16(offset, littleEndian);
+            case 4: // LONG (Inteiro longo)
+                return data.getUint32(offset, littleEndian);
+            case 5: // RATIONAL (Fração, usado na Lente, Abertura e Obturador)
+                return [
+                    data.getUint32(offset, littleEndian), // Numerador
+                    data.getUint32(offset + 4, littleEndian) // Denominador
+                ];
+            case 10: // SRATIONAL (Fração com sinal)
+                return [
+                    data.getInt32(offset, littleEndian),
+                    data.getInt32(offset + 4, littleEndian)
+                ];
+            default:
+                return null;
+        }
+    }
+
+    formatExifData(exif) {
         const formatted = {};
 
-        // Extrai Câmera
-        if (exifData.camera_make?.value) formatted.camera_make = String(exifData.camera_make.value);
-        if (exifData.camera_model?.value) formatted.camera_model = String(exifData.camera_model.value);
+        // Monta a Marca e Modelo da Câmera
+        if (exif.camera_make) formatted.camera_make = String(exif.camera_make);
+        if (exif.camera_model) formatted.camera_model = String(exif.camera_model);
 
-        // Extrai ISO
-        if (exifData.iso?.value) formatted.iso = `ISO${exifData.iso.value}`;
+        // Formata o ISO (Direto)
+        if (exif.iso) formatted.iso = `ISO${exif.iso}`;
 
-        // Extrai F/
-        if (exifData.f_number?.value) {
-            formatted.aperture = `f/${exifData.f_number.value}`;
-        } else if (exifData.aperture?.value) {
-            formatted.aperture = `f/${parseFloat(exifData.aperture.value).toFixed(1)}`;
+        // Formata a Abertura da Lente (ex: f/6.3)
+        if (exif.f_number) {
+            const [num, den] = exif.f_number;
+            if (den !== 0) {
+                let aperture = (num / den).toFixed(1).replace('.0', '');
+                formatted.aperture = `f/${aperture}`;
+            }
         }
 
-        // Extrai Velocidade
-        if (exifData.exposure_time?.value) {
-            formatted.shutter = `${exifData.exposure_time.value}s`;
+        // Formata a Velocidade do Obturador (ex: 1/320s)
+        if (exif.exposure_time) {
+            const [num, den] = exif.exposure_time;
+            if (num !== 0 && den !== 0) {
+                if (num < den) {
+                    formatted.shutter = `1/${Math.round(den / num)}s`;
+                } else {
+                    formatted.shutter = `${Math.round(num / den)}s`;
+                }
+            }
         }
 
-        // Extrai Distância Lente
-        if (exifData.focal_length?.value) {
-            formatted.focal_length = `${parseInt(exifData.focal_length.value)}mm`;
-        } else if (exifData.focal_length_35mm?.value) {
-            formatted.focal_length = `${parseInt(exifData.focal_length_35mm.value)}mm`;
+        // Formata a Distância Focal (ex: 50mm)
+        if (exif.focal_length) {
+            const [num, den] = exif.focal_length;
+            if (den !== 0) formatted.focal_length = `${Math.round(num / den)}mm`;
+        }
+
+        // Mantém a data original por precaução, mesmo que não desenhemos na moldura
+        if (exif.datetime) {
+            formatted.datetime = String(exif.datetime);
         }
 
         return formatted;
