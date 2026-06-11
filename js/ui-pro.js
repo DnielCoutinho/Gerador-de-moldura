@@ -64,6 +64,7 @@ class UIManagerPro {
             
             // Text
             textColor: document.getElementById('textColor'),
+            fontFamily: document.getElementById('fontFamily'), // CORREÇÃO: Captura da Fonte
             textSize: document.getElementById('textSize'),
             textSizeSlider: document.getElementById('textSizeSlider'),
             textSizeDecrement: document.getElementById('textSizeDecrement'),
@@ -234,6 +235,8 @@ class UIManagerPro {
 
         // Text
         this.elements.textColor?.addEventListener('input', () => this.triggerPreviewUpdate());
+        this.elements.fontFamily?.addEventListener('change', () => this.triggerPreviewUpdate()); // CORREÇÃO: Listener para a Fonte
+
         this.elements.textSize?.addEventListener('input', (e) => {
             this.elements.textSizeSlider.value = e.target.value;
             this.triggerPreviewUpdate();
@@ -306,6 +309,7 @@ class UIManagerPro {
             this.elements.bottomSpacingSlider.value = config.bottomSpacing;
         }
         if (this.elements.textColor) this.elements.textColor.value = config.textColor;
+        if (this.elements.fontFamily && config.fontFamily) this.elements.fontFamily.value = config.fontFamily;
         if (this.elements.textSize) {
             this.elements.textSize.value = config.textSize;
             this.elements.textSizeSlider.value = config.textSize;
@@ -326,14 +330,16 @@ class UIManagerPro {
      * Obtém configuração atual
      */
     getConfig() {
-        const align = document.querySelector('.btn-align.active')?.dataset.align || 'left';
+        // CORREÇÃO: Centro como padrão
+        const align = document.querySelector('.btn-align.active')?.dataset.align || 'center'; 
         const ratio = document.querySelector('.btn-ratio.active')?.dataset.ratio || 'original';
         
         return {
             frameColor: this.elements.frameColor?.value || '#B48A68',
             frameWidth: parseInt(this.elements.frameWidth?.value || '40'),
             bottomSpacing: parseInt(this.elements.bottomSpacing?.value || '100'),
-            textColor: this.elements.textColor?.value || '#FFFFFF',
+            textColor: this.elements.textColor?.value || '#000000',
+            fontFamily: this.elements.fontFamily?.value || 'Courier New', // CORREÇÃO: Lê a fonte selecionada
             textSize: parseInt(this.elements.textSize?.value || '14'),
             textAlign: align,
             aspectRatio: ratio

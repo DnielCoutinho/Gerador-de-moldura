@@ -17,17 +17,14 @@ class FrameStudioProApp {
 
     async initialize() {
         try {
-            // Inicializar UI Manager
             this.uiManager = new UIManagerPro();
             
-            // Inicializar Preview Manager
             const canvas = document.getElementById('previewCanvas');
             if (canvas) {
                 this.previewManager = new PreviewManager(canvas);
-                window.previewManager = this.previewManager; // CORREÇÃO: Export global
+                window.previewManager = this.previewManager;
             }
 
-            // Setup listeners
             this.setupFileInput();
             this.setupDragDrop();
             this.setupUIListeners();
@@ -41,12 +38,10 @@ class FrameStudioProApp {
 
     setupFileInput() {
         const fileInput = document.getElementById('fileInput');
-        const uploadBtn = document.getElementById('uploadBtn');
         const uploadZone = document.getElementById('uploadZone');
 
         fileInput?.addEventListener('change', (e) => this.handleFiles(e.target.files));
         
-        // CORREÇÃO: Fazer a área inteira de upload ser clicável
         uploadZone?.addEventListener('click', (e) => {
             if (e.target !== fileInput) fileInput?.click();
         });
@@ -68,13 +63,8 @@ class FrameStudioProApp {
     }
 
     setupDragDrop() {
-        document.addEventListener('dragover', (e) => {
-            e.preventDefault();
-        });
-
-        document.addEventListener('drop', (e) => {
-            e.preventDefault();
-        });
+        document.addEventListener('dragover', (e) => e.preventDefault());
+        document.addEventListener('drop', (e) => e.preventDefault());
     }
 
     setupUIListeners() {
@@ -86,20 +76,16 @@ class FrameStudioProApp {
         exportBtn?.addEventListener('click', () => this.exportImage());
         themeToggle?.addEventListener('click', () => this.uiManager.toggleTheme());
 
-        // CORREÇÃO: Adiciona escutador no painel para atualizar a pré-visualização em tempo real
         const controlPanel = document.querySelector('.control-panel');
         if (controlPanel) {
-            // Atualiza imediatamente enquanto você arrasta os sliders numéricos ou muda as cores
             controlPanel.addEventListener('input', () => {
                 if (this.currentImageIndex !== -1) {
                     this.updatePreview();
                 }
             });
             
-            // Atualiza quando você clica nos botões de Proporção, Estilos (Presets) e Alinhamento
             controlPanel.addEventListener('click', (e) => {
                 if (e.target.closest('button') || e.target.closest('.preset-card') || e.target.closest('.btn-ratio')) {
-                    // Dá um tempo mínimo (50ms) para os botões mudarem de estado (ex: classe 'active') antes de repintar
                     setTimeout(() => {
                         if (this.currentImageIndex !== -1) {
                             this.updatePreview();
@@ -226,7 +212,18 @@ class FrameStudioProApp {
         this.uiManager.showLoading(true);
 
         try {
-            const blob = await this.previewManager.generator.exportImage('jpeg', 0.95);
+            // Pega as qualidades e configurações atuais
+            const qualitySelect = document.getElementById('exportQuality');
+            const qualityValue = qualitySelect ? parseFloat(qualitySelect.value) : 0.95;
+            
+            const file = this.images[this.currentImageIndex];
+            const img = await this.previewManager.generator.loadImage(file);
+            const exif = await exifReaderPro.extractEXIF(file);
+            const config = this.uiManager.getConfig();
+
+            // Exporta passando a foto original para gerar em MÁXIMA resolução
+            const blob = await this.previewManager.exportImage(img, exif, config, 'jpeg', qualityValue);
+            
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
@@ -242,6 +239,8 @@ class FrameStudioProApp {
             this.uiManager.toast('Erro ao exportar imagem', 'error');
         } finally {
             this.uiManager.showLoading(false);
+            // Repinta a tela para devolver o modo preview
+            this.updatePreview(); 
         }
     }
 }
@@ -249,13 +248,12 @@ class FrameStudioProApp {
 // Instância global
 let app;
 
-// Inicializar quando documento estiver pronto
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
         app = new FrameStudioProApp();
-        window.app = app; // CORREÇÃO: Export global
+        window.app = app;
     });
 } else {
     app = new FrameStudioProApp();
-    window.app = app; // CORREÇÃO: Export global
+    window.app = app;
 }
